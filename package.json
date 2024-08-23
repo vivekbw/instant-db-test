@@ -6,6 +6,8 @@
     "start": "next start"
   },
   "dependencies": {
+    "@instantdb/react": "^0.12.6",
+    "dotenv": "^16.4.5",
     "next": "latest",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
