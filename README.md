@@ -1,6 +1,11 @@
-# Welcome to Next.js
+# instant-db test project
 
-This is the most minimal starter for your Next.js project.
+messing around with [instant-db](https://github.com/instantdb/instant?tab=readme-ov-file) to create a light-weight web app (multiplayer interactions)
+
+current state:
+
+<img width="196" alt="image" src="https://github.com/user-attachments/assets/f19fcda1-ec19-4ad3-ab9c-81c35aa0df4e">
+
 
 ## Deploy your own
 
