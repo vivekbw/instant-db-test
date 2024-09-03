@@ -107,11 +107,12 @@ function TodoForm({ todos, darkMode }: { todos: Todo[], darkMode: boolean }) {
   const [showColorModal, setShowColorModal] = React.useState(false);
   const [deadline, setDeadline] = React.useState('');
 
+  const glowColor = color === "#FFFFFF" 
+    ? (darkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)")
+    : (darkMode ? darkenColor(color, 0.8) : color);
+
   return (
-    <div style={{
-      ...styles.form,
-      borderColor: darkMode ? "#555" : "lightgray",
-    }}>
+    <div style={styles.form}>
       <div style={styles.toggleAll} onClick={() => toggleAll(todos)}>
         ⌄
       </div>
@@ -127,9 +128,7 @@ function TodoForm({ todos, darkMode }: { todos: Todo[], darkMode: boolean }) {
         <input
           style={{
             ...styles.input,
-            borderColor: color === "#FFFFFF" 
-              ? (darkMode ? "#555" : "lightgray") 
-              : (darkMode ? darkenColor(color) : color),
+            boxShadow: `0 0 5px ${glowColor}`,
             color: darkMode ? "#fff" : "#000",
           }}
           autoFocus
@@ -304,9 +303,8 @@ const styles: Record<string, React.CSSProperties> = {
   form: {
     boxSizing: "border-box",
     display: "flex",
-    border: "1px solid lightgray",
-    borderBottomWidth: "0px",
     width: "350px",
+    backgroundColor: "transparent",
   },
   toggleAll: {
     fontSize: "30px",
@@ -315,6 +313,7 @@ const styles: Record<string, React.CSSProperties> = {
     marginTop: "-6px",
     width: "15px",
     marginRight: "12px",
+    paddingBottom: "10px",
   },
   inputContainer: {
     display: "flex",
@@ -325,13 +324,13 @@ const styles: Record<string, React.CSSProperties> = {
   input: {
     backgroundColor: "transparent",
     fontFamily: "code, monospace",
-    width: "287px",
+    width: "100%",
     padding: "10px",
     fontStyle: "italic",
     flexGrow: 1,
     border: "none",
-    borderRight: "1px solid lightgray",
     outline: "none",
+    transition: "box-shadow 0.8s ease",
   },
   colorButton: {
     cursor: "pointer",
@@ -389,7 +388,7 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: "center",
     padding: "10px",
     border: "1px solid lightgray",
-    borderBottomWidth: "0px",
+    borderBottomWidth: "1px",
   },
   todoText: {
     flexGrow: "1",
@@ -407,22 +406,23 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "10px",
     border: "1px solid lightgray",
     fontSize: "10px",
+    marginTop: "10px",
   },
   footer: {
     marginTop: "20px",
     fontSize: "10px",
   },
   deadlineInput: {
-    width: '100%',
-    marginTop: '5px',
-    padding: '5px',
-    border: '1px solid lightgray',
-    borderRadius: '4px',
+    width: "100%",
+    marginTop: "5px",
+    padding: "5px",
+    border: "1px solid lightgray",
+    borderRadius: "4px",
   },
   deadline: {
-    fontSize: '0.8em',
-    color: '#888',
-    marginLeft: '10px',
+    fontSize: "0.8em",
+    color: "#888",
+    marginLeft: "10px",
   },
   darkModeToggle: {
     cursor: "pointer",
