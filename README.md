@@ -4,7 +4,8 @@ messing around with [instant-db](https://github.com/instantdb/instant?tab=readme
 
 current state:
 
-<img width="196" alt="image" src="https://github.com/user-attachments/assets/f19fcda1-ec19-4ad3-ab9c-81c35aa0df4e">
+<img width="396" alt="image" src="https://github.com/user-attachments/assets/d01a357d-2b2a-4161-87b7-f1108bdc6eb4">
+
 
 
 ## Deploy your own
