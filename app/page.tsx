@@ -3,6 +3,7 @@
 import React from "react";
 import { init, tx, id } from "@instantdb/react";
 import { format, parseISO } from 'date-fns';
+import Color from 'color';
 
 // ID for app: multiplayer-chat-app
 const APP_ID = "eabc8046-5610-4100-8bf0-61fbf2fe34c2";
@@ -15,6 +16,8 @@ type Schema = {
 const db = init<Schema>({ appId: APP_ID });
 
 function App() {
+  const [darkMode, setDarkMode] = React.useState(false);
+
   // Read Data
   const { isLoading, error, data } = db.useQuery({ todos: {} });
   if (isLoading) {
@@ -25,12 +28,23 @@ function App() {
   }
   const { todos } = data;
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>todos</div>
-      <TodoForm todos={todos} />
-      <TodoList todos={todos} />
-      <ActionBar todos={todos} />
-      <div style={styles.footer}>
+    <div style={{
+      ...styles.container,
+      backgroundColor: darkMode ? "#333" : "#fafafa",
+      color: darkMode ? "#fff" : "#000",
+    }}>
+      <div style={{
+        ...styles.header,
+        color: darkMode ? "#ddd" : "lightgray",
+      }}>todos</div>
+      <DarkModeToggle darkMode={darkMode} setDarkMode={setDarkMode} />
+      <TodoForm todos={todos} darkMode={darkMode} />
+      <TodoList todos={todos} darkMode={darkMode} />
+      <ActionBar todos={todos} darkMode={darkMode} />
+      <div style={{
+        ...styles.footer,
+        color: darkMode ? "#ddd" : "#000",
+      }}>
         Open another tab to see todos update in realtime!
       </div>
     </div>
@@ -84,13 +98,20 @@ const pastelColors = [
   "#FFC6FF", // Light Magenta
 ];
 
-function TodoForm({ todos }: { todos: Todo[] }) {
+function darkenColor(color: string, amount: number = 0.2): string {
+  return Color(color).darken(amount).hex();
+}
+
+function TodoForm({ todos, darkMode }: { todos: Todo[], darkMode: boolean }) {
   const [color, setColor] = React.useState(pastelColors[0]);
   const [showColorModal, setShowColorModal] = React.useState(false);
   const [deadline, setDeadline] = React.useState('');
 
   return (
-    <div style={styles.form}>
+    <div style={{
+      ...styles.form,
+      borderColor: darkMode ? "#555" : "lightgray",
+    }}>
       <div style={styles.toggleAll} onClick={() => toggleAll(todos)}>
         ⌄
       </div>
@@ -106,7 +127,10 @@ function TodoForm({ todos }: { todos: Todo[] }) {
         <input
           style={{
             ...styles.input,
-            borderColor: color === "#FFFFFF" ? "lightgray" : color,
+            borderColor: color === "#FFFFFF" 
+              ? (darkMode ? "#555" : "lightgray") 
+              : (darkMode ? darkenColor(color) : color),
+            color: darkMode ? "#fff" : "#000",
           }}
           autoFocus
           placeholder="What needs to be done?"
@@ -150,7 +174,7 @@ function TodoForm({ todos }: { todos: Todo[] }) {
   );
 }
 
-function TodoList({ todos }: { todos: Todo[] }) {
+function TodoList({ todos, darkMode }: { todos: Todo[], darkMode: boolean }) {
   const todosWithDeadline = todos.filter(todo => todo.deadline).sort((a, b) => 
     new Date(a.deadline!).getTime() - new Date(b.deadline!).getTime()
   );
@@ -158,27 +182,32 @@ function TodoList({ todos }: { todos: Todo[] }) {
 
   return (
     <div style={styles.todoList}>
-      {todosWithDeadline.length > 0 && (
+      {todosWithDeadline.length > 0 && (	
         <div>
-          <h3>Todos with Deadlines</h3>
-          {todosWithDeadline.map(todo => <TodoItem key={todo.id} todo={todo} />)}
+          <h3 style={{ color: darkMode ? "#fff" : "#000" }}>Coming soon...</h3>
+          {todosWithDeadline.map(todo => <TodoItem key={todo.id} todo={todo} darkMode={darkMode} />)}
         </div>
       )}
       {todosWithoutDeadline.length > 0 && (
         <div>
-          <h3>Todos without Deadlines</h3>
-          {todosWithoutDeadline.map(todo => <TodoItem key={todo.id} todo={todo} />)}
+          <hr style={{ border: 'none', borderTop: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`, margin: '10px 0' }} />
+          {todosWithoutDeadline.map(todo => <TodoItem key={todo.id} todo={todo} darkMode={darkMode} />)}
         </div>
       )}
     </div>
   );
 }
 
-function TodoItem({ todo }: { todo: Todo }) {
+function TodoItem({ todo, darkMode }: { todo: Todo, darkMode: boolean }) {
+  const backgroundColor = todo.color === "#FFFFFF" 
+    ? "transparent" 
+    : (darkMode ? darkenColor(todo.color) : todo.color);
+
   return (
     <div style={{
       ...styles.todo, 
-      backgroundColor: todo.color === "#FFFFFF" ? "transparent" : todo.color
+      backgroundColor,
+      borderColor: darkMode ? "#555" : "lightgray",
     }}>
       <input
         type="checkbox"
@@ -186,11 +215,17 @@ function TodoItem({ todo }: { todo: Todo }) {
         checked={todo.done}
         onChange={() => toggleDone(todo)}
       />
-      <div style={styles.todoText}>
+      <div style={{
+        ...styles.todoText,
+        color: darkMode ? "#fff" : "#000",
+      }}>
         <span>{todo.text}</span>
         {todo.deadline && (
-          <span style={styles.deadline}>
-            Due: {format(parseISO(todo.deadline), 'MMM d, yyyy')}
+          <span style={{
+            ...styles.deadline,
+            color: darkMode ? "#fff" : "#888",
+          }}>
+            ({format(parseISO(todo.deadline), 'MMM d, yyyy')})
           </span>
         )}
       </div>
@@ -201,13 +236,37 @@ function TodoItem({ todo }: { todo: Todo }) {
   );
 }
 
-function ActionBar({ todos }: { todos: Todo[] }) {
+function ActionBar({ todos, darkMode }: { todos: Todo[], darkMode: boolean }) {
   return (
-    <div style={styles.actionBar}>
+    <div style={{
+      ...styles.actionBar,
+      borderColor: darkMode ? "#555" : "lightgray",
+      color: darkMode ? "#fff" : "#000",
+    }}>
       <div>Remaining todos: {todos.filter((todo) => !todo.done).length}</div>
       <div style={{ cursor: "pointer" }} onClick={() => deleteCompleted(todos)}>
         Delete Completed
       </div>
+    </div>
+  );
+}
+
+function DarkModeToggle({ darkMode, setDarkMode }) {
+  return (
+    <div
+      style={styles.darkModeToggle}
+      onClick={() => setDarkMode(!darkMode)}
+    >
+      {darkMode ? (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="#FFFFFF" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      ) : (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="5" fill="#000000" stroke="#000000" strokeWidth="2"/>
+          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      )}
     </div>
   );
 }
@@ -364,6 +423,20 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '0.8em',
     color: '#888',
     marginLeft: '10px',
+  },
+  darkModeToggle: {
+    cursor: "pointer",
+    position: "absolute",
+    top: "20px",
+    right: "20px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "32px",
+    height: "32px",
+    borderRadius: "50%",
+    backgroundColor: "transparent",
+    transition: "background-color 0.3s ease",
   },
 };
 
