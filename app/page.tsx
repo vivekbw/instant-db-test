@@ -30,22 +30,33 @@ function App() {
   return (
     <div style={{
       ...styles.container,
-      backgroundColor: darkMode ? "#333" : "#fafafa",
       color: darkMode ? "#fff" : "#000",
     }}>
-      <div style={{
-        ...styles.header,
-        color: darkMode ? "#ddd" : "lightgray",
-      }}>todos</div>
-      <DarkModeToggle darkMode={darkMode} setDarkMode={setDarkMode} />
-      <TodoForm todos={todos} darkMode={darkMode} />
-      <TodoList todos={todos} darkMode={darkMode} />
-      <ActionBar todos={todos} darkMode={darkMode} />
-      <div style={{
-        ...styles.footer,
-        color: darkMode ? "#ddd" : "#000",
-      }}>
-        Open another tab to see todos update in realtime!
+      <div className="pulsing-background" style={styles.pulsingBackground} />
+      <svg className="sine-wave" style={styles.sineWave} width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0,100 Q250,0 500,100 T1000,100" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="2">
+          <animate attributeName="d" 
+            values="M0,100 Q250,0 500,100 T1000,100;
+                    M0,100 Q250,200 500,100 T1000,100;
+                    M0,100 Q250,0 500,100 T1000,100"
+            dur="10s" repeatCount="indefinite" />
+        </path>
+      </svg>
+      <div style={styles.content}>
+        <div style={{
+          ...styles.header,
+          color: darkMode ? "#ddd" : "lightgray",
+        }}>todos</div>
+        <DarkModeToggle darkMode={darkMode} setDarkMode={setDarkMode} />
+        <TodoForm todos={todos} darkMode={darkMode} />
+        <TodoList todos={todos} darkMode={darkMode} />
+        <ActionBar todos={todos} darkMode={darkMode} />
+        <div style={{
+          ...styles.footer,
+          color: darkMode ? "#ddd" : "#000",
+        }}>
+          Open another tab to see todos update in realtime!
+        </div>
       </div>
     </div>
   );
@@ -109,7 +120,7 @@ function TodoForm({ todos, darkMode }: { todos: Todo[], darkMode: boolean }) {
 
   const glowColor = color === "#FFFFFF" 
     ? (darkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)")
-    : (darkMode ? darkenColor(color, 0.8) : color);
+    : (darkMode ? darkenColor(color, 0.3) : color);
 
   return (
     <div style={styles.form}>
@@ -286,13 +297,38 @@ type Todo = {
 const styles: Record<string, React.CSSProperties> = {
   container: {
     boxSizing: "border-box",
-    backgroundColor: "#fafafa",
     fontFamily: "code, monospace",
     height: "100vh",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
     flexDirection: "column",
+    position: "relative",
+    overflow: "hidden",
+  },
+  pulsingBackground: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    animation: "pulseRGB 10s linear infinite",
+  },
+  sineWave: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    opacity: 0.5,
+  },
+  content: {
+    position: "relative",
+    zIndex: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    padding: "20px",
+    borderRadius: "10px",
+    boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
   },
   header: {
     letterSpacing: "2px",
@@ -330,7 +366,7 @@ const styles: Record<string, React.CSSProperties> = {
     flexGrow: 1,
     border: "none",
     outline: "none",
-    transition: "box-shadow 0.8s ease",
+    transition: "box-shadow 0.3s ease",
   },
   colorButton: {
     cursor: "pointer",
@@ -440,4 +476,40 @@ const styles: Record<string, React.CSSProperties> = {
   },
 };
 
-export default App;
+// Add this at the end of your file
+const globalStyles = `
+  @keyframes pulseRGB {
+    0% { background-color: #ff0000; }
+    33% { background-color: #00ff00; }
+    66% { background-color: #0000ff; }
+    100% { background-color: #ff0000; }
+  }
+
+  .pulsing-background {
+    animation: pulseRGB 10s linear infinite;
+  }
+
+  .sine-wave {
+    animation: moveWave 10s linear infinite;
+  }
+
+  @keyframes moveWave {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+`;
+
+// Add this component to inject the global styles
+function GlobalStyles() {
+  return <style>{globalStyles}</style>;
+}
+
+// Modify your default export to include GlobalStyles
+export default function AppWithStyles() {
+  return (
+    <>
+      <GlobalStyles />
+      <App />
+    </>
+  );
+}
